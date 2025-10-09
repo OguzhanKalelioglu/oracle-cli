@@ -14,7 +14,7 @@ from .config import CONFIG_PATH, load_config, save_config
 from .db import ConnectionConfig
 from .tui import OracleExplorerApp
 
-__version__ = "1.0.1"  # Version with performance improvements
+__version__ = "1.1.0"  # Version with MCP integration
 
 
 OBJECT_TYPE_ALIASES: Dict[str, str] = {
@@ -471,6 +471,43 @@ def use_schema(ctx: click.Context, schema_name: str):
 
     ctx.obj["config"] = replace(config, schema=new_schema)
     console.print(f"[green]Schema changed to:[/] {new_schema}")
+
+
+@cli.command("mcp")
+@click.pass_context
+def start_mcp_server(ctx: click.Context):
+    """Start MCP (Model Context Protocol) server for AI tools integration.
+    
+    This command starts an MCP server that allows AI tools like Cursor, VS Code,
+    and Claude Desktop to access your Oracle database schema and data.
+    
+    The server communicates via stdio (standard input/output) using JSON-RPC.
+    
+    Configuration needed in your AI tool (e.g., Cursor MCP settings):
+    
+    \b
+    {
+      "mcpServers": {
+        "oracle-cli": {
+          "command": "oracle-cli",
+          "args": ["mcp"]
+        }
+      }
+    }
+    """
+    
+    from .mcp_server import run_mcp_server
+    
+    # Önce konfigürasyon kontrolü
+    config = load_config()
+    if not config:
+        raise click.ClickException(
+            "Oracle bağlantı bilgileri bulunamadı.\n"
+            "Lütfen önce 'oracle-cli configure' komutunu çalıştırın."
+        )
+    
+    # MCP sunucusunu başlat
+    run_mcp_server()
 
 
 def main():
