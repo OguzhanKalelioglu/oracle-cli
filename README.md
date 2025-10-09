@@ -30,6 +30,10 @@
 ⌨️ **Keyboard First** - Navigate everything with arrow keys, no mouse needed  
 🔌 **No Client Required** - Uses `python-oracledb` thin mode by default  
 🔗 **MCP Server** - Integrates with AI tools (Cursor, VS Code, Claude) via Model Context Protocol  
+🔎 **Relationship Discovery** - Automatically find foreign key relationships between tables  
+📈 **Performance Analysis** - Index analysis and optimization recommendations  
+🔒 **Constraint Mapping** - Complete view of primary keys, foreign keys, unique constraints  
+🔍 **Smart Search** - Search tables and columns across entire schema  
 
 ---
 
@@ -78,8 +82,16 @@ Ask your AI assistant:
 - *"List all tables in my database"*
 - *"Show me the structure of EMPLOYEES table"*
 - *"Find all customers from California"*
+- *"What tables are related to EMPLOYEES?"* 🆕
+- *"Show me the indexes on EMPLOYEES table"* 🆕
+- *"Search for all tables containing 'customer'"* 🆕
 
-**That's it!** 🎉 AI can now query your Oracle database automatically.
+**That's it!** 🎉 AI can now:
+- ✅ Query your Oracle database automatically
+- ✅ Discover table relationships and foreign keys
+- ✅ Analyze indexes and constraints
+- ✅ Search across your entire schema
+- ✅ Provide performance optimization tips
 
 > 💡 **Works with:** Cursor, VS Code, Claude Desktop, and any MCP-compatible AI tool
 
@@ -383,22 +395,43 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Available MCP Tools
 
-- ✅ **7+ Powerful Tools**: List tables, describe structures, query data, execute SQL
+- ✅ **13 Powerful Tools**: List tables, describe structures, query data, analyze relationships
 - 🔒 **Secure**: SELECT-only queries, local stdio access
 - ⚡ **Fast**: Uses existing caching system
 - 🎯 **Smart**: AI automatically selects the right tools
+- 🔗 **Relational**: Discover table relationships and dependencies
+- 📊 **Analytical**: Index analysis, constraint mapping, performance insights
 
 ### MCP Tools Reference
 
+#### 📊 Basic Information (4 tools)
 | Tool | Description |
 |------|-------------|
 | `list_tables` | List all tables in the schema |
-| `describe_table` | View detailed table structure |
+| `describe_table` | View detailed table structure (columns, types, constraints) |
 | `query_table` | Get sample data from a table |
-| `execute_sql` | Run custom SELECT queries |
+| `get_table_stats` | Get table statistics (row count, size, segments) |
+
+#### 🔗 Relationship Analysis (4 tools)
+| Tool | Description |
+|------|-------------|
+| `get_table_relationships` | View foreign key relationships (parent & child tables) |
+| `get_table_constraints` | Show all constraints (PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK) |
+| `get_related_tables` | Find all related tables through foreign key relationships |
+| `get_table_indexes` | List all indexes with performance insights |
+
+#### 🔍 Search & Discovery (1 tool)
+| Tool | Description |
+|------|-------------|
+| `search_tables` | Search tables and columns by keyword across schema |
+
+#### 🛠️ Advanced Tools (4 tools)
+| Tool | Description |
+|------|-------------|
+| `execute_sql` | Run custom SELECT queries (read-only) |
+| `get_table_triggers` | List table triggers with event details |
 | `list_objects` | List PL/SQL packages, procedures, functions |
 | `get_source` | View PL/SQL source code |
-| `get_table_stats` | Get table statistics (row count, size) |
 
 **For detailed setup and troubleshooting:** [MCP_SETUP.md](MCP_SETUP.md)
 
@@ -406,7 +439,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [x] Copy to clipboard (markdown format) ✅
 - [x] Full keyboard navigation ✅
-- [x] **MCP Server Integration** ✅ **NEW!**
+- [x] **MCP Server Integration** ✅
+- [x] **Table relationships viewer** ✅ **NEW in v1.2.0!**
+- [x] **Index and constraint viewer** ✅ **NEW in v1.2.0!**
+- [x] **Advanced schema analysis** ✅ **NEW in v1.2.0!**
 - [ ] Export data to CSV/JSON
 - [ ] Save and load SQL queries
 - [ ] Support for database diagrams
@@ -414,8 +450,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Query history
 - [ ] Custom themes
 - [ ] Plugin system
-- [ ] Table relationships viewer
-- [ ] Index and constraint viewer
+- [ ] ER diagram visualization
+- [ ] Performance monitoring dashboard
 
 ## Support
 
