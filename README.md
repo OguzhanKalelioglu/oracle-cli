@@ -3,13 +3,6 @@
 [![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-   ____                 _              _____ _      _____ 
-  / __ \               | |            / ____| |    |_   _|
- | |  | |_ __ __ _  ___| | ___ ______| |    | |      | |  
- | |  | | '__/ _` |/ __| |/ _ \______| |    | |      | |  
- | |__| | | | (_| | (__| |  __/      | |____| |____ _| |_ 
-  \____/|_|  \__,_|\___|_|\___|       \_____|______|_____|
-                                                          
                                                           
 ## Features
 
