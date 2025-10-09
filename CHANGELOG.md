@@ -5,6 +5,25 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-10-09
+
+### 🐛 Bug Fixes
+- **Auto-save Configuration**: Connection details are now automatically saved when entered interactively
+  - No need to run `oracle-cli configure` separately anymore
+  - First run will prompt for connection details and save them automatically
+  - Shows confirmation message with config file location
+
+### 🪟 Windows Improvements
+- **Windows MCP Support**: Added Windows-specific MCP configuration instructions
+  - Recommended: Use `python -m oracle_cli mcp` for Windows
+  - Alternative: Use full path to `oracle-cli.exe`
+  - Detailed setup guide in README for both options
+
+### 📝 Documentation
+- Updated README with Windows-specific MCP setup instructions
+- Added clear configuration path examples for Windows users
+- Improved first-time setup experience documentation
+
 ## [1.2.0] - 2025-10-09
 
 ### 🎯 Advanced MCP Tools (NEW!)

@@ -65,6 +65,7 @@ Click the button above → Cursor will automatically add the configuration!
 
 Open Cursor Settings → **Features** → **Model Context Protocol** → Add this JSON:
 
+**For macOS/Linux:**
 ```json
 {
   "mcpServers": {
@@ -75,6 +76,41 @@ Open Cursor Settings → **Features** → **Model Context Protocol** → Add thi
   }
 }
 ```
+
+**For Windows:**
+
+First, find your Python path:
+```cmd
+where python
+```
+
+Then use one of these configurations:
+
+**Option A: Using Python directly (Recommended for Windows)**
+```json
+{
+  "mcpServers": {
+    "oracle-cli": {
+      "command": "python",
+      "args": ["-m", "oracle_cli", "mcp"]
+    }
+  }
+}
+```
+
+**Option B: Using full path to oracle-cli**
+```json
+{
+  "mcpServers": {
+    "oracle-cli": {
+      "command": "C:\\Users\\YourUsername\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\oracle-cli.exe",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+> 💡 **Tip:** Replace `YourUsername` and `Python312` with your actual paths
 
 ### ✅ Step 4: Restart Cursor & Test
 

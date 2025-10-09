@@ -14,7 +14,7 @@ from .config import CONFIG_PATH, load_config, save_config
 from .db import ConnectionConfig
 from .tui import OracleExplorerApp
 
-__version__ = "1.2.0"  # Version with advanced MCP tools (relationships, indexes, constraints)
+__version__ = "1.2.1"  # Auto-save config on first run + Windows MCP support
 
 
 OBJECT_TYPE_ALIASES: Dict[str, str] = {
@@ -38,6 +38,9 @@ def resolve_connection_config(
     resolved_dsn = dsn or (stored.dsn if stored else None)
     resolved_schema = schema or (stored.schema if stored else None)
 
+    # Eğer hiçbir bilgi yoksa (ne stored ne de parametre), interaktif configure yap
+    needs_interactive_config = not resolved_user or not resolved_password or not resolved_dsn
+    
     if not resolved_user:
         resolved_user = click.prompt("Oracle username")
 
@@ -58,12 +61,24 @@ def resolve_connection_config(
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
-    return ConnectionConfig(
+    config = ConnectionConfig(
         user=resolved_user,
         password=resolved_password,
         dsn=resolved_dsn,
         schema=normalized_schema,
     )
+    
+    # Eğer config dosyası yoktu ve interaktif olarak bilgi girildiyse, kaydet
+    if needs_interactive_config and not stored:
+        try:
+            save_config(config)
+            click.echo(f"\n✅ Connection details saved to: {CONFIG_PATH}")
+            click.echo("   (You won't be asked again on next run)\n")
+        except Exception as e:
+            click.echo(f"\n⚠️  Warning: Could not save config: {e}", err=True)
+            click.echo("   (Connection will work, but you'll be asked again next time)\n", err=True)
+    
+    return config
 
 
 def get_console(ctx: click.Context) -> Console:
