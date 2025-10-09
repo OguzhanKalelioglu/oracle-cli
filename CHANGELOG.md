@@ -8,32 +8,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-10-09
 
 ### 🤖 MCP Integration (NEW!)
-- **MCP Server Support**: Oracle-CLI artık Model Context Protocol sunucusu olarak çalışabilir
-- **AI Tool Integration**: Cursor, VS Code, Claude Desktop gibi araçlarla doğrudan entegrasyon
+- **MCP Server Support**: Oracle-CLI can now run as a Model Context Protocol server
+- **AI Tool Integration**: Direct integration with Cursor, VS Code, Claude Desktop, and other AI tools
 - **7+ MCP Tools**: 
-  - `list_tables` - Tüm tabloları listele
-  - `describe_table` - Tablo yapısını görüntüle
-  - `query_table` - Tablo verilerini sorgula
-  - `execute_sql` - Özel SQL sorguları çalıştır (SELECT only)
-  - `list_objects` - PL/SQL objelerini listele
-  - `get_source` - Kaynak kodu görüntüle
-  - `get_table_stats` - Tablo istatistikleri
-- **Security**: Sadece SELECT sorguları, lokal stdio erişimi
-- **Documentation**: Detaylı MCP kurulum rehberi (MCP_SETUP.md)
+  - `list_tables` - List all tables in schema
+  - `describe_table` - View table structure
+  - `query_table` - Query table data
+  - `execute_sql` - Execute custom SQL queries (SELECT only)
+  - `list_objects` - List PL/SQL objects
+  - `get_source` - View source code
+  - `get_table_stats` - Get table statistics
+- **Security**: SELECT-only queries, local stdio access
+- **Documentation**: Detailed MCP setup guide (MCP_SETUP.md)
 
 ### ✨ Added
-- `oracle-cli mcp` komutu - MCP sunucusunu başlatır
-- MCP konfigürasyon örneği (mcp-config-example.json)
-- Kapsamlı MCP dokümantasyonu
-- Cursor, VS Code, Claude Desktop entegrasyon örnekleri
+- `oracle-cli mcp` command - Starts the MCP server
+- MCP configuration example (mcp-config-example.json)
+- Comprehensive MCP documentation
+- Cursor, VS Code, Claude Desktop integration examples
 
 ### 📦 Dependencies
-- `mcp>=0.9.0` paketi eklendi
+- Added `mcp>=0.9.0` package
 
 ### 📝 Documentation
-- README'ye MCP bölümü eklendi
-- MCP_SETUP.md detaylı kurulum rehberi
-- Kullanım örnekleri ve sorun giderme
+- Added MCP section to README
+- MCP_SETUP.md detailed installation guide
+- Usage examples and troubleshooting
 
 ## [1.0.1] - 2025-01-10
 

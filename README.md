@@ -315,23 +315,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🤖 MCP (Model Context Protocol) Integration
 
-Oracle-CLI artık **MCP sunucusu** olarak çalışabilir! Bu sayede Cursor, VS Code, Claude Desktop gibi AI araçlarının veritabanınıza doğrudan erişmesini sağlayabilirsiniz.
+Oracle-CLI can now run as an **MCP server**! This allows AI tools like Cursor, VS Code, and Claude Desktop to directly access your Oracle database.
 
-### Hızlı Başlangıç
+### Quick Start
 
-1. **Veritabanı bağlantınızı yapılandırın:**
+1. **Configure your database connection:**
    ```bash
    oracle-cli configure
    ```
 
-2. **MCP sunucusunu başlatın:**
+2. **Start the MCP server:**
    ```bash
    oracle-cli mcp
    ```
 
-3. **AI aracınızı yapılandırın (Cursor örneği):**
+3. **Configure your AI tool (Cursor example):**
    
-   `~/.cursor/mcp.json` dosyasına ekleyin:
+   Add to `~/.cursor/mcp.json`:
    ```json
    {
      "mcpServers": {
@@ -343,21 +343,21 @@ Oracle-CLI artık **MCP sunucusu** olarak çalışabilir! Bu sayede Cursor, VS C
    }
    ```
 
-4. **AI ile konuşun:**
+4. **Talk to your AI:**
    ```
    "List all tables in my database"
    "Show me the structure of EMPLOYEES table"
    "Find all employees with salary > 5000"
    ```
 
-### MCP Özellikleri
+### MCP Features
 
-- ✅ **7+ Güçlü Araç:** Tablo listesi, yapı sorgulama, veri görüntüleme, SQL çalıştırma
-- 🔒 **Güvenli:** Sadece SELECT sorguları, lokal stdio erişimi
-- ⚡ **Hızlı:** Mevcut önbellekleme sistemini kullanır
-- 🎯 **Akıllı:** AI otomatik olarak doğru araçları seçer
+- ✅ **7+ Powerful Tools**: List tables, describe structures, query data, execute SQL
+- 🔒 **Secure**: SELECT-only queries, local stdio access
+- ⚡ **Fast**: Uses existing caching system
+- 🎯 **Smart**: AI automatically selects the right tools
 
-**Detaylı kurulum ve kullanım için:** [MCP_SETUP.md](MCP_SETUP.md)
+**For detailed setup and usage:** [MCP_SETUP.md](MCP_SETUP.md)
 
 ## Roadmap
 
