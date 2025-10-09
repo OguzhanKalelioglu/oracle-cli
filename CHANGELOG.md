@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Critical Bug Fix
 - **Windows MCP Server Fix**: Fixed `__main__.py` to properly handle MCP server mode
+  - **Issue 1**: Previous version was ignoring the `mcp` argument and starting the normal CLI instead
+  - **Issue 2**: Fixed async function handling - now correctly uses `run_mcp_server()` instead of calling `main()` directly
   - `python -m oracle_cli mcp` now correctly starts the MCP server
-  - Previous version was ignoring the `mcp` argument and starting the normal CLI instead
   - This was the root cause of Windows MCP server not working in Cursor
 
 ## [1.2.1] - 2025-10-09
