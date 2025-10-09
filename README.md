@@ -2,6 +2,18 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Release](https://img.shields.io/github/v/release/oguzhankalelioglu/oracle-cli)](https://github.com/oguzhankalelioglu/oracle-cli/releases)
+[![MCP Server](https://img.shields.io/badge/MCP-Server-blue?logo=cursor)](https://modelcontextprotocol.io)
+
+**🚀 Interactive Oracle Database Explorer with AI-powered MCP Integration**
+
+<div align="center">
+
+[![Install with pipx](https://img.shields.io/badge/Install%20with-pipx-brightgreen?style=for-the-badge&logo=python)](https://github.com/oguzhankalelioglu/oracle-cli#install-with-pipx-recommended)
+[![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-blue?style=for-the-badge&logo=cursor)](#-mcp-model-context-protocol-integration)
+[![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github)](https://github.com/oguzhankalelioglu/oracle-cli)
+
+</div>
 
                                                           
 ## Features
@@ -18,6 +30,52 @@
 ⌨️ **Keyboard First** - Navigate everything with arrow keys, no mouse needed  
 🔌 **No Client Required** - Uses `python-oracledb` thin mode by default  
 🔗 **MCP Server** - Integrates with AI tools (Cursor, VS Code, Claude) via Model Context Protocol  
+
+---
+
+## 🤖 Quick Start: Add to Cursor (MCP Integration)
+
+**Oracle-CLI now works as an MCP server!** Let AI assistants directly access your Oracle database.
+
+### 📦 Step 1: Install Oracle-CLI
+
+```bash
+pipx install git+https://github.com/oguzhankalelioglu/oracle-cli.git
+```
+
+### ⚙️ Step 2: Configure Database Connection
+
+```bash
+oracle-cli configure
+```
+
+### 🔌 Step 3: Add to Cursor
+
+Open Cursor Settings → **Features** → **Model Context Protocol** → Add this JSON:
+
+```json
+{
+  "mcpServers": {
+    "oracle-cli": {
+      "command": "oracle-cli",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+### ✅ Step 4: Restart Cursor & Test
+
+Ask your AI assistant:
+- *"List all tables in my database"*
+- *"Show me the structure of EMPLOYEES table"*
+- *"Find all customers from California"*
+
+**That's it!** 🎉 AI can now query your Oracle database automatically.
+
+> 💡 **Works with:** Cursor, VS Code, Claude Desktop, and any MCP-compatible AI tool
+
+---
 
 ## Installation
 
@@ -313,51 +371,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - CLI powered by [Click](https://click.palletsprojects.com/)
 - Pretty output by [Rich](https://rich.readthedocs.io/)
 
-## 🤖 MCP (Model Context Protocol) Integration
+## 🔧 Advanced MCP Configuration
 
-Oracle-CLI can now run as an **MCP server**! This allows AI tools like Cursor, VS Code, and Claude Desktop to directly access your Oracle database.
-
-### Quick Start
-
-1. **Configure your database connection:**
-   ```bash
-   oracle-cli configure
-   ```
-
-2. **Start the MCP server:**
-   ```bash
-   oracle-cli mcp
-   ```
-
-3. **Configure your AI tool (Cursor example):**
-   
-   Add to `~/.cursor/mcp.json`:
-   ```json
-   {
-     "mcpServers": {
-       "oracle-cli": {
-         "command": "oracle-cli",
-         "args": ["mcp"]
-       }
-     }
-   }
-   ```
-
-4. **Talk to your AI:**
-   ```
-   "List all tables in my database"
-   "Show me the structure of EMPLOYEES table"
-   "Find all employees with salary > 5000"
-   ```
-
-### MCP Features
+### Available MCP Tools
 
 - ✅ **7+ Powerful Tools**: List tables, describe structures, query data, execute SQL
 - 🔒 **Secure**: SELECT-only queries, local stdio access
 - ⚡ **Fast**: Uses existing caching system
 - 🎯 **Smart**: AI automatically selects the right tools
 
-**For detailed setup and usage:** [MCP_SETUP.md](MCP_SETUP.md)
+### MCP Tools Reference
+
+| Tool | Description |
+|------|-------------|
+| `list_tables` | List all tables in the schema |
+| `describe_table` | View detailed table structure |
+| `query_table` | Get sample data from a table |
+| `execute_sql` | Run custom SELECT queries |
+| `list_objects` | List PL/SQL packages, procedures, functions |
+| `get_source` | View PL/SQL source code |
+| `get_table_stats` | Get table statistics (row count, size) |
+
+**For detailed setup and troubleshooting:** [MCP_SETUP.md](MCP_SETUP.md)
 
 ## Roadmap
 
