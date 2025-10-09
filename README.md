@@ -10,7 +10,7 @@
 <div align="center">
 
 [![Install with pipx](https://img.shields.io/badge/Install%20with-pipx-brightgreen?style=for-the-badge&logo=python)](https://github.com/oguzhankalelioglu/oracle-cli#install-with-pipx-recommended)
-[![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-blue?style=for-the-badge&logo=cursor)](#-mcp-model-context-protocol-integration)
+[![Add to Cursor](https://img.shields.io/badge/Add%20to-Cursor-blue?style=for-the-badge&logo=cursor)](https://cursor.com/en-US/install-mcp?name=oracle-cli&config=eyJjb21tYW5kIjoib3JhY2xlLWNsaSIsImFyZ3MiOlsibWNwIl19)
 [![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github)](https://github.com/oguzhankalelioglu/oracle-cli)
 
 </div>
@@ -50,6 +50,14 @@ oracle-cli configure
 ```
 
 ### 🔌 Step 3: Add to Cursor
+
+**Option 1: One-Click Install (Easiest!)**
+
+[![Add to Cursor](https://img.shields.io/badge/🚀_Click_to_Install_in_Cursor-blue?style=for-the-badge)](https://cursor.com/en-US/install-mcp?name=oracle-cli&config=eyJjb21tYW5kIjoib3JhY2xlLWNsaSIsImFyZ3MiOlsibWNwIl19)
+
+Click the button above → Cursor will automatically add the configuration!
+
+**Option 2: Manual Configuration**
 
 Open Cursor Settings → **Features** → **Model Context Protocol** → Add this JSON:
 
