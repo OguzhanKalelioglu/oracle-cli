@@ -213,6 +213,125 @@ async def list_tools() -> list[Tool]:
                 "required": ["table_name"],
             },
         ),
+        Tool(
+            name="get_table_relationships",
+            description="Tablonun foreign key ilişkilerini gösterir (parent ve child tablolar)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "Tablo adı",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                },
+                "required": ["table_name"],
+            },
+        ),
+        Tool(
+            name="get_table_indexes",
+            description="Tablonun tüm index'lerini listeler (performans optimizasyonu için)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "Tablo adı",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                },
+                "required": ["table_name"],
+            },
+        ),
+        Tool(
+            name="get_table_constraints",
+            description="Tablonun tüm constraint'lerini gösterir (PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "Tablo adı",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                },
+                "required": ["table_name"],
+            },
+        ),
+        Tool(
+            name="get_related_tables",
+            description="Bir tablo ile ilişkili tüm tabloları bulur (foreign key ilişkileri üzerinden)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "Tablo adı",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                    "depth": {
+                        "type": "integer",
+                        "description": "İlişki derinliği (1=direkt ilişkili, 2=ikinci seviye). Varsayılan: 1",
+                        "default": 1,
+                    },
+                },
+                "required": ["table_name"],
+            },
+        ),
+        Tool(
+            name="search_tables",
+            description="Tablo isimlerinde veya kolon isimlerinde arama yapar",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "keyword": {
+                        "type": "string",
+                        "description": "Aranacak kelime (büyük/küçük harf duyarsız)",
+                    },
+                    "search_in": {
+                        "type": "string",
+                        "description": "Arama yeri: table_name (sadece tablo adı), column_name (sadece kolon adı), both (her ikisi)",
+                        "enum": ["table_name", "column_name", "both"],
+                        "default": "both",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                },
+                "required": ["keyword"],
+            },
+        ),
+        Tool(
+            name="get_table_triggers",
+            description="Tablonun trigger'larını listeler (INSERT/UPDATE/DELETE olaylarında çalışan otomatik işlemler)",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "table_name": {
+                        "type": "string",
+                        "description": "Tablo adı",
+                    },
+                    "schema": {
+                        "type": "string",
+                        "description": "Şema adı (opsiyonel)",
+                    },
+                },
+                "required": ["table_name"],
+            },
+        ),
     ]
 
 
@@ -450,6 +569,382 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | ImageCo
 **Boyut:** {size_mb} MB
 **Segment Sayısı:** {num_segments}
 """
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "get_table_relationships":
+            table_name = arguments["table_name"]
+            
+            def get_relationships():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    # Parent tablolar (bu tablo hangi tabloları referans ediyor)
+                    cursor.execute(
+                        """
+                        SELECT 
+                            c.constraint_name,
+                            c.table_name AS child_table,
+                            cc.column_name AS child_column,
+                            r.table_name AS parent_table,
+                            rc.column_name AS parent_column,
+                            c.delete_rule
+                        FROM all_constraints c
+                        JOIN all_cons_columns cc ON c.constraint_name = cc.constraint_name AND c.owner = cc.owner
+                        JOIN all_constraints r ON c.r_constraint_name = r.constraint_name AND c.owner = r.owner
+                        JOIN all_cons_columns rc ON r.constraint_name = rc.constraint_name AND r.owner = rc.owner
+                        WHERE c.constraint_type = 'R' 
+                          AND c.owner = :owner 
+                          AND c.table_name = :table_name
+                        ORDER BY c.constraint_name, cc.position
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    parents = cursor.fetchall()
+                    
+                    # Child tablolar (hangi tablolar bu tabloyu referans ediyor)
+                    cursor.execute(
+                        """
+                        SELECT 
+                            c.constraint_name,
+                            c.table_name AS child_table,
+                            cc.column_name AS child_column,
+                            r.table_name AS parent_table,
+                            rc.column_name AS parent_column,
+                            c.delete_rule
+                        FROM all_constraints c
+                        JOIN all_cons_columns cc ON c.constraint_name = cc.constraint_name AND c.owner = cc.owner
+                        JOIN all_constraints r ON c.r_constraint_name = r.constraint_name AND c.owner = r.owner
+                        JOIN all_cons_columns rc ON r.constraint_name = rc.constraint_name AND r.owner = rc.owner
+                        WHERE c.constraint_type = 'R' 
+                          AND r.owner = :owner 
+                          AND r.table_name = :table_name
+                        ORDER BY c.constraint_name, cc.position
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    children = cursor.fetchall()
+                    
+                    return parents, children
+            
+            parents, children = await loop.run_in_executor(None, get_relationships)
+            
+            result_text = f"# Tablo İlişkileri: {schema}.{table_name.upper()}\n\n"
+            
+            # Parent tablolar
+            if parents:
+                result_text += "## 🔗 Parent Tablolar (Bu Tablo Referans Ediyor)\n\n"
+                result_text += "| Constraint | Child Column | Parent Table | Parent Column | Delete Rule |\n"
+                result_text += "|------------|--------------|--------------|---------------|-------------|\n"
+                for p in parents:
+                    result_text += f"| {p[0]} | {p[2]} | {p[3]} | {p[4]} | {p[5] or 'NO ACTION'} |\n"
+                result_text += "\n"
+            else:
+                result_text += "## 🔗 Parent Tablolar\n\nBu tabloyu referans eden başka tablo yok.\n\n"
+            
+            # Child tablolar
+            if children:
+                result_text += "## 👶 Child Tablolar (Bu Tabloyu Referans Eden)\n\n"
+                result_text += "| Constraint | Child Table | Child Column | Parent Column | Delete Rule |\n"
+                result_text += "|------------|-------------|--------------|---------------|-------------|\n"
+                for c in children:
+                    result_text += f"| {c[0]} | {c[1]} | {c[2]} | {c[4]} | {c[5] or 'NO ACTION'} |\n"
+                result_text += "\n"
+            else:
+                result_text += "## 👶 Child Tablolar\n\nBu tabloyu referans eden başka tablo yok.\n\n"
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "get_table_indexes":
+            table_name = arguments["table_name"]
+            
+            def get_indexes():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    cursor.execute(
+                        """
+                        SELECT 
+                            i.index_name,
+                            i.index_type,
+                            i.uniqueness,
+                            i.status,
+                            LISTAGG(ic.column_name, ', ') WITHIN GROUP (ORDER BY ic.column_position) AS columns
+                        FROM all_indexes i
+                        JOIN all_ind_columns ic ON i.index_name = ic.index_name AND i.owner = ic.index_owner
+                        WHERE i.table_owner = :owner
+                          AND i.table_name = :table_name
+                        GROUP BY i.index_name, i.index_type, i.uniqueness, i.status
+                        ORDER BY i.index_name
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    return cursor.fetchall()
+            
+            indexes = await loop.run_in_executor(None, get_indexes)
+            
+            result_text = f"# Index'ler: {schema}.{table_name.upper()}\n\n"
+            
+            if indexes:
+                result_text += f"**Toplam {len(indexes)} index bulundu:**\n\n"
+                result_text += "| Index Adı | Tip | Unique | Status | Kolonlar |\n"
+                result_text += "|-----------|-----|--------|--------|----------|\n"
+                for idx in indexes:
+                    result_text += f"| {idx[0]} | {idx[1]} | {idx[2]} | {idx[3]} | {idx[4]} |\n"
+            else:
+                result_text += "Bu tabloda index bulunamadı.\n"
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "get_table_constraints":
+            table_name = arguments["table_name"]
+            
+            def get_constraints():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    cursor.execute(
+                        """
+                        SELECT 
+                            c.constraint_name,
+                            c.constraint_type,
+                            LISTAGG(cc.column_name, ', ') WITHIN GROUP (ORDER BY cc.position) AS columns,
+                            c.search_condition,
+                            c.r_constraint_name AS references,
+                            c.delete_rule,
+                            c.status
+                        FROM all_constraints c
+                        LEFT JOIN all_cons_columns cc ON c.constraint_name = cc.constraint_name 
+                                                       AND c.owner = cc.owner
+                        WHERE c.owner = :owner
+                          AND c.table_name = :table_name
+                        GROUP BY c.constraint_name, c.constraint_type, c.search_condition, 
+                                 c.r_constraint_name, c.delete_rule, c.status
+                        ORDER BY 
+                            CASE c.constraint_type 
+                                WHEN 'P' THEN 1 
+                                WHEN 'U' THEN 2 
+                                WHEN 'R' THEN 3 
+                                ELSE 4 
+                            END
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    return cursor.fetchall()
+            
+            constraints = await loop.run_in_executor(None, get_constraints)
+            
+            result_text = f"# Constraint'ler: {schema}.{table_name.upper()}\n\n"
+            
+            if constraints:
+                constraint_types = {
+                    'P': 'PRIMARY KEY',
+                    'U': 'UNIQUE',
+                    'R': 'FOREIGN KEY',
+                    'C': 'CHECK'
+                }
+                
+                result_text += f"**Toplam {len(constraints)} constraint bulundu:**\n\n"
+                result_text += "| Constraint | Tip | Kolonlar | Detay | Status |\n"
+                result_text += "|------------|-----|----------|-------|--------|\n"
+                
+                for c in constraints:
+                    c_type = constraint_types.get(c[1], c[1])
+                    detail = ""
+                    if c[1] == 'C' and c[3]:
+                        # CHECK constraint - search condition göster
+                        detail = str(c[3])[:50] + "..." if len(str(c[3])) > 50 else str(c[3])
+                    elif c[1] == 'R' and c[4]:
+                        # FOREIGN KEY - referenced constraint göster
+                        detail = f"→ {c[4]}"
+                        if c[5]:
+                            detail += f" (ON DELETE {c[5]})"
+                    
+                    result_text += f"| {c[0]} | {c_type} | {c[2]} | {detail} | {c[6]} |\n"
+            else:
+                result_text += "Bu tabloda constraint bulunamadı.\n"
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "get_related_tables":
+            table_name = arguments["table_name"]
+            depth = arguments.get("depth", 1)
+            
+            def get_related():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    # İlişkili tabloları bul (hem parent hem child)
+                    cursor.execute(
+                        """
+                        SELECT DISTINCT r.table_name AS related_table, 'PARENT' AS relationship_type
+                        FROM all_constraints c
+                        JOIN all_constraints r ON c.r_constraint_name = r.constraint_name AND c.owner = r.owner
+                        WHERE c.constraint_type = 'R' 
+                          AND c.owner = :owner 
+                          AND c.table_name = :table_name
+                        UNION
+                        SELECT DISTINCT c.table_name AS related_table, 'CHILD' AS relationship_type
+                        FROM all_constraints c
+                        JOIN all_constraints r ON c.r_constraint_name = r.constraint_name AND c.owner = r.owner
+                        WHERE c.constraint_type = 'R' 
+                          AND r.owner = :owner 
+                          AND r.table_name = :table_name
+                        ORDER BY relationship_type, related_table
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    return cursor.fetchall()
+            
+            related = await loop.run_in_executor(None, get_related)
+            
+            result_text = f"# İlişkili Tablolar: {schema}.{table_name.upper()}\n\n"
+            
+            if related:
+                parents = [r for r in related if r[1] == 'PARENT']
+                children = [r for r in related if r[1] == 'CHILD']
+                
+                result_text += f"**Toplam {len(related)} ilişkili tablo bulundu:**\n\n"
+                
+                if parents:
+                    result_text += "## 🔗 Parent Tablolar\n\n"
+                    for p in parents:
+                        result_text += f"- {p[0]}\n"
+                    result_text += "\n"
+                
+                if children:
+                    result_text += "## 👶 Child Tablolar\n\n"
+                    for c in children:
+                        result_text += f"- {c[0]}\n"
+                    result_text += "\n"
+            else:
+                result_text += "Bu tablo ile ilişkili başka tablo bulunamadı.\n"
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "search_tables":
+            keyword = arguments["keyword"]
+            search_in = arguments.get("search_in", "both")
+            
+            def search():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    search_pattern = f"%{keyword.upper()}%"
+                    
+                    results = []
+                    
+                    # Tablo isimlerinde ara
+                    if search_in in ["table_name", "both"]:
+                        cursor.execute(
+                            """
+                            SELECT table_name, 'TABLE_NAME' AS match_type, NULL AS column_name
+                            FROM all_tables
+                            WHERE owner = :owner
+                              AND table_name LIKE :pattern
+                            ORDER BY table_name
+                            """,
+                            owner=normalized_schema,
+                            pattern=search_pattern
+                        )
+                        results.extend(cursor.fetchall())
+                    
+                    # Kolon isimlerinde ara
+                    if search_in in ["column_name", "both"]:
+                        cursor.execute(
+                            """
+                            SELECT table_name, 'COLUMN_NAME' AS match_type, column_name
+                            FROM all_tab_columns
+                            WHERE owner = :owner
+                              AND column_name LIKE :pattern
+                            ORDER BY table_name, column_name
+                            """,
+                            owner=normalized_schema,
+                            pattern=search_pattern
+                        )
+                        results.extend(cursor.fetchall())
+                    
+                    return results
+            
+            results = await loop.run_in_executor(None, search)
+            
+            result_text = f"# Arama Sonuçları: '{keyword}'\n\n"
+            
+            if results:
+                result_text += f"**{len(results)} sonuç bulundu:**\n\n"
+                
+                # Tablo adı sonuçları
+                table_matches = [r for r in results if r[1] == 'TABLE_NAME']
+                if table_matches:
+                    result_text += "## 📊 Tablo İsimleri\n\n"
+                    for r in table_matches:
+                        result_text += f"- **{r[0]}**\n"
+                    result_text += "\n"
+                
+                # Kolon adı sonuçları
+                column_matches = [r for r in results if r[1] == 'COLUMN_NAME']
+                if column_matches:
+                    result_text += "## 📋 Kolon İsimleri\n\n"
+                    current_table = None
+                    for r in column_matches:
+                        if r[0] != current_table:
+                            if current_table:
+                                result_text += "\n"
+                            result_text += f"**{r[0]}:**\n"
+                            current_table = r[0]
+                        result_text += f"  - {r[2]}\n"
+            else:
+                result_text += f"'{keyword}' için sonuç bulunamadı.\n"
+            
+            return [TextContent(type="text", text=result_text)]
+        
+        elif name == "get_table_triggers":
+            table_name = arguments["table_name"]
+            
+            def get_triggers():
+                with conn.cursor() as cursor:
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    cursor.execute(
+                        """
+                        SELECT 
+                            trigger_name,
+                            trigger_type,
+                            triggering_event,
+                            status,
+                            description
+                        FROM all_triggers
+                        WHERE owner = :owner
+                          AND table_name = :table_name
+                        ORDER BY trigger_name
+                        """,
+                        owner=normalized_schema,
+                        table_name=normalized_table
+                    )
+                    return cursor.fetchall()
+            
+            triggers = await loop.run_in_executor(None, get_triggers)
+            
+            result_text = f"# Trigger'lar: {schema}.{table_name.upper()}\n\n"
+            
+            if triggers:
+                result_text += f"**Toplam {len(triggers)} trigger bulundu:**\n\n"
+                result_text += "| Trigger Adı | Tip | Event | Status | Açıklama |\n"
+                result_text += "|-------------|-----|-------|--------|----------|\n"
+                for t in triggers:
+                    desc = str(t[4])[:50] + "..." if t[4] and len(str(t[4])) > 50 else (t[4] or "")
+                    result_text += f"| {t[0]} | {t[1]} | {t[2]} | {t[3]} | {desc} |\n"
+            else:
+                result_text += "Bu tabloda trigger bulunamadı.\n"
             
             return [TextContent(type="text", text=result_text)]
         

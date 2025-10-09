@@ -5,6 +5,42 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-10-09
+
+### 🎯 Advanced MCP Tools (NEW!)
+- **6 New MCP Tools** for advanced database analysis and schema discovery:
+  - `get_table_relationships` - View foreign key relationships (parent & child tables)
+  - `get_table_indexes` - List all indexes with performance insights
+  - `get_table_constraints` - Display all constraints (PK, FK, UK, CHECK)
+  - `get_related_tables` - Find all related tables through FK relationships
+  - `search_tables` - Search tables and columns by keyword
+  - `get_table_triggers` - List table triggers with event details
+
+### 🔍 Enhanced Schema Discovery
+- **Relationship Analysis**: Automatically discover table dependencies
+- **Performance Insights**: Index analysis for optimization recommendations
+- **Smart Search**: Find tables and columns across entire schema
+- **Constraint Mapping**: Complete view of data integrity rules
+
+### 🤖 AI Model Benefits
+- **Better Context**: AI can now understand table relationships
+- **Smarter Queries**: AI suggests optimal joins based on FK relationships
+- **Performance Tips**: AI can recommend missing indexes
+- **Schema Navigation**: AI helps discover related data across tables
+
+### 🛠️ Technical Improvements
+- Schema normalization for all new tools
+- Fallback queries for different privilege levels
+- Comprehensive error handling
+- Markdown-formatted output for better readability
+
+### 📊 Total MCP Tools: 13
+- 4 Basic Info Tools (tables, describe, query, stats)
+- 4 Relationship Tools (relationships, constraints, related, indexes)
+- 1 Search Tool (search_tables)
+- 3 Advanced Tools (SQL, triggers, PL/SQL objects)
+- 1 Source Code Tool (get_source)
+
 ## [1.1.0] - 2025-10-09
 
 ### 🤖 MCP Integration (NEW!)

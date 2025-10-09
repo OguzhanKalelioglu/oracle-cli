@@ -14,7 +14,7 @@ from .config import CONFIG_PATH, load_config, save_config
 from .db import ConnectionConfig
 from .tui import OracleExplorerApp
 
-__version__ = "1.1.0"  # Version with MCP integration
+__version__ = "1.2.0"  # Version with advanced MCP tools (relationships, indexes, constraints)
 
 
 OBJECT_TYPE_ALIASES: Dict[str, str] = {
