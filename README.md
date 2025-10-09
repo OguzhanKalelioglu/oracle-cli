@@ -50,13 +50,13 @@ pip install -e .
 ### Update with pipx (Recommended)
 
 ```bash
-pipx upgrade oracle-cli-tui
+pipx upgrade oracle-cli
 ```
 
 Or reinstall from GitHub for the latest version:
 
 ```bash
-pipx uninstall oracle-cli-tui
+pipx uninstall oracle-cli
 pipx install git+https://github.com/oguzhankalelioglu/oracle-cli.git
 ```
 

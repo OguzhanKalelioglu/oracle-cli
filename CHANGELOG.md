@@ -79,12 +79,12 @@ pipx install git+https://github.com/OguzhanKalelioglu/oracle-cli.git
 
 ### From any version:
 ```bash
-pipx upgrade oracle-cli-tui
+pipx upgrade oracle-cli
 ```
 
 Or reinstall:
 ```bash
-pipx uninstall oracle-cli-tui
+pipx uninstall oracle-cli
 pipx install git+https://github.com/OguzhanKalelioglu/oracle-cli.git
 ```
 

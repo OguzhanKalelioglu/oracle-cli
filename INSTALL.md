@@ -80,7 +80,7 @@ oracle-cli --help
 ## Kaldırma
 
 ```bash
-pip uninstall oracle-cli-tui
+pip uninstall oracle-cli
 ```
 
 ## Sorun Giderme
@@ -91,7 +91,7 @@ Eğer yükleme sonrası komut bulunamazsa, Python'un scripts dizininin PATH'iniz
 
 ```bash
 # Kurulum yerini kontrol et
-pip show oracle-cli-tui
+pip show oracle-cli
 
 # Python scripts dizinini PATH'e ekle (macOS/Linux için ~/.zshrc veya ~/.bashrc)
 export PATH="$HOME/.local/bin:$PATH"
