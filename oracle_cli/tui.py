@@ -413,6 +413,14 @@ class OracleExplorerApp(App[None]):
         self.all_objects_cache: List[ExplorerItem] = []
         # Track selected item
         self.selected_item: Optional[ExplorerItem] = None
+        
+        # 🚀 Performance: Detail cache - prevents reloading same table multiple times
+        self.detail_cache: Dict[str, Tuple] = {}  # key: "schema.object_name.type" -> value: (columns, rows, timestamp)
+        self.cache_ttl: int = 300  # 5 minutes cache TTL
+        
+        # 🚀 Performance: Prefetch queue for background loading
+        self.prefetch_queue: List[ExplorerItem] = []
+        self.prefetch_task: Optional[asyncio.Task] = None
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
@@ -490,8 +498,10 @@ class OracleExplorerApp(App[None]):
         self.conn = await loop.run_in_executor(None, db.create_connection, self.config)
 
     def action_refresh(self) -> None:
-        # Cache'i temizle ve yeniden yükle
+        # Cache'leri temizle ve yeniden yükle
         self.all_objects_cache = []
+        self.detail_cache.clear()  # 🚀 Detail cache'i de temizle
+        self.notify("Cache cleared, refreshing...", severity="information", timeout=2)
         asyncio.create_task(self._refresh_object_list())
 
     async def _populate_schemas(self) -> None:
@@ -586,10 +596,37 @@ class OracleExplorerApp(App[None]):
         switcher = self.query_one("#detail-switcher", ContentSwitcher)
         switcher.current = "loading"
         loop = asyncio.get_running_loop()
+        
+        # 🚀 Performance: Check cache first
+        import time
+        cache_key = f"{self.active_schema}.{entry.name}.{entry.object_type}"
+        cached_data = self.detail_cache.get(cache_key)
+        
+        # Check if cache is valid (not expired)
+        if cached_data:
+            cached_content, cached_time = cached_data
+            if time.time() - cached_time < self.cache_ttl:
+                debug_log(f"📦 Using cached data for {entry.name}", self.debug_mode)
+                
+                # Use cached data
+                if entry.object_type == "TABLE":
+                    columns, column_names, rows = cached_content
+                    table_detail = self.query_one("#table-detail", TableDetail)
+                    table_detail.update_detail(columns, rows, column_names, self.debug_mode)
+                    switcher.current = "table-detail"
+                else:
+                    source = cached_content
+                    code_detail = self.query_one("#code-detail", CodeDetail)
+                    code_detail.show_source(entry.name, entry.object_type, source)
+                    switcher.current = "code-detail"
+                
+                # 🚀 Start prefetch for next items
+                self._start_prefetch(entry)
+                return
 
         try:
             if entry.object_type == "TABLE":
-                debug_log(f"Loading table: {entry.name}", self.debug_mode)
+                debug_log(f"⏳ Loading table: {entry.name}", self.debug_mode)
                 columns = await loop.run_in_executor(
                     None, db.describe_table, self.conn, self.active_schema, entry.name
                 )
@@ -603,14 +640,18 @@ class OracleExplorerApp(App[None]):
                     self.row_limit,
                 )
                 debug_log(f"Rows loaded: {len(rows)}, columns: {len(column_names)}", self.debug_mode)
+                
+                # 🚀 Cache the data
+                self.detail_cache[cache_key] = ((columns, column_names, rows), time.time())
+                
                 table_detail = self.query_one("#table-detail", TableDetail)
                 debug_log(f"Updating table detail widget...", self.debug_mode)
                 table_detail.update_detail(columns, rows, column_names, self.debug_mode)
                 debug_log(f"Setting switcher to table-detail", self.debug_mode)
                 switcher.current = "table-detail"
-                debug_log(f"Table detail displayed successfully", self.debug_mode)
+                debug_log(f"✓ Table detail displayed successfully", self.debug_mode)
             else:
-                debug_log(f"Loading source: {entry.name} ({entry.object_type})", self.debug_mode)
+                debug_log(f"⏳ Loading source: {entry.name} ({entry.object_type})", self.debug_mode)
                 source = await loop.run_in_executor(
                     None,
                     db.fetch_source,
@@ -619,10 +660,17 @@ class OracleExplorerApp(App[None]):
                     entry.name,
                     entry.object_type,
                 )
+                
+                # 🚀 Cache the data
+                self.detail_cache[cache_key] = (source, time.time())
+                
                 code_detail = self.query_one("#code-detail", CodeDetail)
                 code_detail.show_source(entry.name, entry.object_type, source)
                 switcher.current = "code-detail"
-                debug_log(f"Source code displayed successfully", self.debug_mode)
+                debug_log(f"✓ Source code displayed successfully", self.debug_mode)
+            
+            # 🚀 Start prefetch for next items
+            self._start_prefetch(entry)
         except asyncio.CancelledError:
             debug_log(f"Load detail task was cancelled", self.debug_mode)
             raise
@@ -637,6 +685,67 @@ class OracleExplorerApp(App[None]):
     def _show_error(self, message: str) -> None:
         self.error_panel.update(f"[red]{message}[/]")
         self.query_one("#detail-switcher", ContentSwitcher).current = "error-panel"
+    
+    def _start_prefetch(self, current_entry: ExplorerItem) -> None:
+        """🚀 Start prefetching next 2-3 items in the background."""
+        if self.prefetch_task and not self.prefetch_task.done():
+            return  # Already prefetching
+        
+        # Find current item's position in filtered list
+        list_view = self.query_one("#object-list", ListView)
+        items = [
+            child.entry for child in list_view.children
+            if isinstance(child, ExplorerListItem)
+        ]
+        
+        try:
+            current_idx = next(i for i, item in enumerate(items) if item.name == current_entry.name)
+            # Queue next 2-3 items for prefetch
+            self.prefetch_queue = items[current_idx + 1:current_idx + 4]
+            self.prefetch_task = asyncio.create_task(self._prefetch_items())
+        except (StopIteration, ValueError):
+            pass
+    
+    async def _prefetch_items(self) -> None:
+        """Background task to prefetch items."""
+        import time
+        
+        for entry in self.prefetch_queue:
+            cache_key = f"{self.active_schema}.{entry.name}.{entry.object_type}"
+            
+            # Skip if already cached
+            if cache_key in self.detail_cache:
+                cached_data = self.detail_cache.get(cache_key)
+                if cached_data:
+                    _, cached_time = cached_data
+                    if time.time() - cached_time < self.cache_ttl:
+                        continue
+            
+            try:
+                assert self.conn is not None
+                loop = asyncio.get_running_loop()
+                
+                debug_log(f"🔄 Prefetching: {entry.name}", self.debug_mode)
+                
+                if entry.object_type == "TABLE":
+                    columns = await loop.run_in_executor(
+                        None, db.describe_table, self.conn, self.active_schema, entry.name
+                    )
+                    column_names, rows = await loop.run_in_executor(
+                        None, db.fetch_rows, self.conn, self.active_schema, entry.name, self.row_limit
+                    )
+                    self.detail_cache[cache_key] = ((columns, column_names, rows), time.time())
+                else:
+                    source = await loop.run_in_executor(
+                        None, db.fetch_source, self.conn, self.active_schema, entry.name, entry.object_type
+                    )
+                    self.detail_cache[cache_key] = (source, time.time())
+                
+                debug_log(f"✓ Prefetched: {entry.name}", self.debug_mode)
+                
+            except Exception as exc:
+                debug_log(f"Prefetch failed for {entry.name}: {exc}", self.debug_mode)
+                continue
 
     async def on_select_changed(self, event: Select.Changed) -> None:
         if event.select.id != "schema-select":
@@ -647,8 +756,9 @@ class OracleExplorerApp(App[None]):
         if new_schema == self.active_schema:
             return
         self.active_schema = new_schema
-        # Şema değişti, cache'i temizle
+        # Şema değişti, cache'leri temizle
         self.all_objects_cache = []
+        self.detail_cache.clear()  # 🚀 Detail cache'i de temizle
         await self._refresh_object_list()
 
     async def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
@@ -726,8 +836,17 @@ class OracleExplorerApp(App[None]):
             if sql_container.has_class("visible"):
                 sql_container.remove_class("visible")
             
-            # About ekranını aç
+            # About ekranını aç ve cache stats göster
             about_container.add_class("visible")
+            
+            # 🚀 Show cache statistics
+            cache_count = len(self.detail_cache)
+            object_count = len(self.all_objects_cache)
+            self.notify(
+                f"📊 Cache: {cache_count} items | Objects: {object_count}",
+                severity="information",
+                timeout=3
+            )
     
     def action_copy_to_clipboard(self) -> None:
         """Copy selected object data to clipboard in markdown format."""
