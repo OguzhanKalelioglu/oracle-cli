@@ -45,6 +45,40 @@ cd oracle-cli
 pip install -e .
 ```
 
+## Updating
+
+### Update with pipx (Recommended)
+
+```bash
+pipx upgrade oracle-cli-tui
+```
+
+Or reinstall from GitHub for the latest version:
+
+```bash
+pipx uninstall oracle-cli-tui
+pipx install git+https://github.com/oguzhankalelioglu/oracle-cli.git
+```
+
+### Update with pip
+
+```bash
+pip install --upgrade git+https://github.com/oguzhankalelioglu/oracle-cli.git
+```
+
+### Update from source
+
+```bash
+cd oracle-cli
+git pull
+pip install -e . --upgrade
+```
+
+**After updating:**
+- Configuration file (`~/.oracle_cli/config.json`) is preserved
+- Cache is automatically cleared on first run
+- Press `R` in TUI to clear cache and see new features
+
 ## Quick Start
 
 ### 1. Configure Connection

@@ -14,6 +14,8 @@ from .config import CONFIG_PATH, load_config, save_config
 from .db import ConnectionConfig
 from .tui import OracleExplorerApp
 
+__version__ = "1.0.1"  # Version with performance improvements
+
 
 OBJECT_TYPE_ALIASES: Dict[str, str] = {
     "package": "PACKAGE",
@@ -69,6 +71,7 @@ def get_console(ctx: click.Context) -> Console:
 
 
 @click.group(invoke_without_command=True)
+@click.version_option(version=__version__, prog_name="oracle-cli")
 @click.option(
     "--user",
     envvar="ORACLE_USER",

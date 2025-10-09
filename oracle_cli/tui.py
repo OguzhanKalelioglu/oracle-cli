@@ -246,7 +246,7 @@ class AboutScreen(Static):
 [bold white]Oracle-CLI TUI[/bold white]
 [dim]Interactive Oracle Database Explorer[/dim]
 
-[bold cyan]Version:[/bold cyan]     [yellow]1.0.0[/yellow]
+[bold cyan]Version:[/bold cyan]     [yellow]1.0.1[/yellow] [dim](Performance Update)[/dim]
 [bold cyan]Developer:[/bold cyan]   [yellow]Oğuzhan Kalelioğlu[/yellow]
 [bold cyan]GitHub:[/bold cyan]      [yellow]https://github.com/oguzhankalelioglu[/yellow]
 [bold cyan]License:[/bold cyan]     [yellow]MIT[/yellow]
