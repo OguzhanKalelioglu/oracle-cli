@@ -5,6 +5,14 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2025-10-09
+
+### 🐛 Critical Bug Fix
+- **Windows MCP Server Fix**: Fixed `__main__.py` to properly handle MCP server mode
+  - `python -m oracle_cli mcp` now correctly starts the MCP server
+  - Previous version was ignoring the `mcp` argument and starting the normal CLI instead
+  - This was the root cause of Windows MCP server not working in Cursor
+
 ## [1.2.1] - 2025-10-09
 
 ### 🐛 Bug Fixes
