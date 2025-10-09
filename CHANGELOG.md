@@ -5,6 +5,36 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-09
+
+### 🤖 MCP Integration (NEW!)
+- **MCP Server Support**: Oracle-CLI artık Model Context Protocol sunucusu olarak çalışabilir
+- **AI Tool Integration**: Cursor, VS Code, Claude Desktop gibi araçlarla doğrudan entegrasyon
+- **7+ MCP Tools**: 
+  - `list_tables` - Tüm tabloları listele
+  - `describe_table` - Tablo yapısını görüntüle
+  - `query_table` - Tablo verilerini sorgula
+  - `execute_sql` - Özel SQL sorguları çalıştır (SELECT only)
+  - `list_objects` - PL/SQL objelerini listele
+  - `get_source` - Kaynak kodu görüntüle
+  - `get_table_stats` - Tablo istatistikleri
+- **Security**: Sadece SELECT sorguları, lokal stdio erişimi
+- **Documentation**: Detaylı MCP kurulum rehberi (MCP_SETUP.md)
+
+### ✨ Added
+- `oracle-cli mcp` komutu - MCP sunucusunu başlatır
+- MCP konfigürasyon örneği (mcp-config-example.json)
+- Kapsamlı MCP dokümantasyonu
+- Cursor, VS Code, Claude Desktop entegrasyon örnekleri
+
+### 📦 Dependencies
+- `mcp>=0.9.0` paketi eklendi
+
+### 📝 Documentation
+- README'ye MCP bölümü eklendi
+- MCP_SETUP.md detaylı kurulum rehberi
+- Kullanım örnekleri ve sorun giderme
+
 ## [1.0.1] - 2025-01-10
 
 ### 🚀 Performance Improvements

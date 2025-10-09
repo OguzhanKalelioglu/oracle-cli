@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "oracle-cli": {
+      "command": "oracle-cli",
+      "args": ["mcp"],
+      "env": {
+        "ORACLE_USER": "your_username",
+        "ORACLE_PASSWORD": "your_password",
+        "ORACLE_DSN": "localhost:1521/XEPDB1",
+        "ORACLE_SCHEMA": "YOUR_SCHEMA"
+      }
+    }
+  }
+}

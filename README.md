@@ -17,6 +17,7 @@
 🎨 **Syntax Highlighting** - Color-coded PL/SQL source code viewer  
 ⌨️ **Keyboard First** - Navigate everything with arrow keys, no mouse needed  
 🔌 **No Client Required** - Uses `python-oracledb` thin mode by default  
+🔗 **MCP Server** - Integrates with AI tools (Cursor, VS Code, Claude) via Model Context Protocol  
 
 ## Installation
 
@@ -312,10 +313,57 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - CLI powered by [Click](https://click.palletsprojects.com/)
 - Pretty output by [Rich](https://rich.readthedocs.io/)
 
+## 🤖 MCP (Model Context Protocol) Integration
+
+Oracle-CLI artık **MCP sunucusu** olarak çalışabilir! Bu sayede Cursor, VS Code, Claude Desktop gibi AI araçlarının veritabanınıza doğrudan erişmesini sağlayabilirsiniz.
+
+### Hızlı Başlangıç
+
+1. **Veritabanı bağlantınızı yapılandırın:**
+   ```bash
+   oracle-cli configure
+   ```
+
+2. **MCP sunucusunu başlatın:**
+   ```bash
+   oracle-cli mcp
+   ```
+
+3. **AI aracınızı yapılandırın (Cursor örneği):**
+   
+   `~/.cursor/mcp.json` dosyasına ekleyin:
+   ```json
+   {
+     "mcpServers": {
+       "oracle-cli": {
+         "command": "oracle-cli",
+         "args": ["mcp"]
+       }
+     }
+   }
+   ```
+
+4. **AI ile konuşun:**
+   ```
+   "List all tables in my database"
+   "Show me the structure of EMPLOYEES table"
+   "Find all employees with salary > 5000"
+   ```
+
+### MCP Özellikleri
+
+- ✅ **7+ Güçlü Araç:** Tablo listesi, yapı sorgulama, veri görüntüleme, SQL çalıştırma
+- 🔒 **Güvenli:** Sadece SELECT sorguları, lokal stdio erişimi
+- ⚡ **Hızlı:** Mevcut önbellekleme sistemini kullanır
+- 🎯 **Akıllı:** AI otomatik olarak doğru araçları seçer
+
+**Detaylı kurulum ve kullanım için:** [MCP_SETUP.md](MCP_SETUP.md)
+
 ## Roadmap
 
 - [x] Copy to clipboard (markdown format) ✅
 - [x] Full keyboard navigation ✅
+- [x] **MCP Server Integration** ✅ **NEW!**
 - [ ] Export data to CSV/JSON
 - [ ] Save and load SQL queries
 - [ ] Support for database diagrams
