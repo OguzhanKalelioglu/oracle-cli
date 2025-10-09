@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PIPM
+
+ANIFEST
+
+# Virtual Environment
+.venv
+venv/
+ENV/
+env/
+.virtualenvs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Distribution
+dist/
+build/
+
+# Logs
+*.log
+logs/
+.oracle_cli/logs/
+
+# Configuration (sensitive data)
+.oracle_cli/config.json
+
+# OS
+.DS_Store
+Thumbs.db
+
