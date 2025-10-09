@@ -401,21 +401,44 @@ async def call_tool(name: str, arguments: Any) -> Sequence[TextContent | ImageCo
                     )
                     row_count = cursor.fetchone()[0]
                     
-                    # Tablo boyutu (segment bilgisi)
-                    cursor.execute(
-                        """
-                        SELECT 
-                            ROUND(SUM(bytes)/1024/1024, 2) as size_mb,
-                            COUNT(*) as num_segments
-                        FROM all_segments
-                        WHERE owner = :owner AND segment_name = :table_name
-                        """,
-                        owner=schema,
-                        table_name=db.normalize_identifier(table_name)
-                    )
-                    size_info = cursor.fetchone()
-                    size_mb = size_info[0] if size_info[0] else 0
-                    num_segments = size_info[1] if size_info[1] else 0
+                    # Normalize edilmiş şema ve tablo adı
+                    normalized_schema = db.normalize_identifier(schema)
+                    normalized_table = db.normalize_identifier(table_name)
+                    
+                    # Tablo boyutu (segment bilgisi) - önce user_segments dene, yoksa all_segments
+                    try:
+                        cursor.execute(
+                            """
+                            SELECT 
+                                ROUND(SUM(bytes)/1024/1024, 2) as size_mb,
+                                COUNT(*) as num_segments
+                            FROM user_segments
+                            WHERE segment_name = :table_name
+                            """,
+                            table_name=normalized_table
+                        )
+                        size_info = cursor.fetchone()
+                    except:
+                        # user_segments başarısız olursa all_segments dene
+                        try:
+                            cursor.execute(
+                                """
+                                SELECT 
+                                    ROUND(SUM(bytes)/1024/1024, 2) as size_mb,
+                                    COUNT(*) as num_segments
+                                FROM all_segments
+                                WHERE owner = :owner AND segment_name = :table_name
+                                """,
+                                owner=normalized_schema,
+                                table_name=normalized_table
+                            )
+                            size_info = cursor.fetchone()
+                        except:
+                            # Segment bilgisi alınamazsa 0 döndür
+                            size_info = (0, 0)
+                    
+                    size_mb = size_info[0] if size_info and size_info[0] else 0
+                    num_segments = size_info[1] if size_info and size_info[1] else 0
                     
                     return row_count, size_mb, num_segments
             
