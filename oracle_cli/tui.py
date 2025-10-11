@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from rich.syntax import Syntax
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
 from textual.reactive import reactive
+from textual.screen import ModalScreen
 from textual.widget import Widget
 from textual.widgets import (
     Checkbox,
@@ -90,6 +91,166 @@ class MessageListItem(ListItem):
 
     def __init__(self, message: str):
         super().__init__(Label(message, markup=True))
+
+
+class PaletteListItem(ListItem):
+    """List item representing a command palette option."""
+
+    def __init__(self, command_id: str, title: str, description: str):
+        label = f"[bold]{title}[/]"
+        if description:
+            label = f"{label}\n[dim]{description}[/]"
+        super().__init__(Label(label, markup=True))
+        self.command_id = command_id
+
+
+class CommandPaletteScreen(ModalScreen[None]):
+    """Minimal command palette dialog."""
+
+    DEFAULT_CSS = """
+    CommandPaletteScreen #palette-backdrop {
+        align: center middle;
+    }
+
+    CommandPaletteScreen #palette-panel {
+        width: 60%;
+        min-width: 40;
+        max-height: 18;
+        padding: 1 2;
+        border: solid $primary;
+        background: $surface;
+        shadow: drop 1 2 4 #00000066;
+    }
+
+    CommandPaletteScreen #palette-list {
+        height: auto;
+        max-height: 12;
+    }
+
+    CommandPaletteScreen .palette-title {
+        padding-bottom: 1;
+    }
+
+    CommandPaletteScreen .palette-empty {
+        padding: 1;
+        color: $text-muted;
+    }
+    """
+
+    def __init__(self, commands: Sequence[Tuple[str, str, str]]):
+        super().__init__()
+        self.commands = list(commands)
+
+    def compose(self) -> ComposeResult:
+        items = [
+            PaletteListItem(command_id, title, description)
+            for command_id, title, description in self.commands
+        ]
+        with Container(id="palette-backdrop"):
+            with Container(id="palette-panel"):
+                yield Static("Command Palette", classes="palette-title", markup=True)
+                if items:
+                    yield ListView(*items, id="palette-list")
+                else:
+                    yield Static("No commands available.", classes="palette-empty")
+
+    async def on_mount(self) -> None:
+        list_view = self.query_one("#palette-list", ListView, default=None)
+        if list_view is not None:
+            list_view.focus()
+
+    async def on_list_view_selected(self, event: ListView.Selected) -> None:
+        item = event.item
+        if isinstance(item, PaletteListItem):
+            await self.dismiss()
+            await self.app.perform_palette_command(item.command_id)
+
+    async def on_key(self, event) -> None:
+        if event.key == "escape":
+            await self.dismiss()
+
+
+class SchemaListItem(ListItem):
+    """List item representing a schema entry."""
+
+    def __init__(self, schema: str, is_active: bool):
+        label = f"[bold]{schema}[/]" if is_active else schema
+        super().__init__(Label(label, markup=True))
+        self.schema = schema
+
+
+class SchemaSelectScreen(ModalScreen[None]):
+    """Dialog for selecting a database schema."""
+
+    DEFAULT_CSS = """
+    SchemaSelectScreen #schema-backdrop {
+        align: center middle;
+    }
+
+    SchemaSelectScreen #schema-panel {
+        width: 50%;
+        min-width: 40;
+        max-height: 18;
+        padding: 1 2;
+        border: solid $primary;
+        background: $surface;
+        shadow: drop 1 2 4 #00000066;
+    }
+
+    SchemaSelectScreen #schema-list {
+        height: auto;
+        max-height: 12;
+    }
+
+    SchemaSelectScreen .schema-help {
+        padding-top: 1;
+        color: $text-muted;
+    }
+
+    SchemaSelectScreen .schema-empty {
+        padding: 1;
+        color: $text-muted;
+    }
+    """
+
+    def __init__(self, schemas: Sequence[str], active_schema: str):
+        super().__init__()
+        self.schemas = list(schemas)
+        self.active_schema = active_schema
+
+    def compose(self) -> ComposeResult:
+        items = [
+            SchemaListItem(schema, schema == self.active_schema)
+            for schema in self.schemas
+        ]
+        with Container(id="schema-backdrop"):
+            with Container(id="schema-panel"):
+                yield Static("Change Schema", classes="schema-title", markup=True)
+                if items:
+                    yield ListView(*items, id="schema-list")
+                else:
+                    yield Static("No schemas available.", classes="schema-empty")
+                yield Static("[dim]Enter: select • Esc: cancel[/dim]", classes="schema-help", markup=True)
+
+    async def on_mount(self) -> None:
+        list_view = self.query_one("#schema-list", ListView, default=None)
+        if list_view is not None:
+            if self.active_schema in self.schemas:
+                try:
+                    list_view.index = self.schemas.index(self.active_schema)
+                except ValueError:
+                    pass
+            list_view.focus()
+
+    async def on_list_view_selected(self, event: ListView.Selected) -> None:
+        item = event.item
+        if isinstance(item, SchemaListItem):
+            await self.dismiss()
+            await self.app.change_schema(item.schema)
+
+    async def on_key(self, event) -> None:
+        if event.key == "escape":
+            await self.dismiss()
 
 
 class TableDetail(Widget):
@@ -255,12 +416,12 @@ class AboutScreen(Static):
 [cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]
 
 [dim]Keyboard Shortcuts:[/dim]
-  [bold]↑↓[/bold]      - Navigate       [bold]Ctrl+S[/bold] - Search
-  [bold]Tab[/bold]     - Next focus     [bold]Ctrl+P[/bold] - Procedures
-  [bold]Ctrl+K[/bold]  - Packages       [bold]Ctrl+E[/bold] - SQL Editor
-  [bold]Ctrl+Y[/bold]  - Copy data      [bold]R[/bold]      - Refresh
-  [bold]F1[/bold]      - About          [bold]Q[/bold]      - Quit
-  [bold]ESC[/bold]     - Close/Cancel
+  [bold]↑↓[/bold]      - Navigate       [bold]Ctrl+S[/bold]       - Search
+  [bold]Tab[/bold]     - Next focus     [bold]Ctrl+P[/bold]       - Command Palette
+  [bold]Ctrl+Shift+P[/bold] - Procedures [bold]Ctrl+K[/bold]      - Packages
+  [bold]Ctrl+E[/bold]  - SQL Editor     [bold]Ctrl+Y[/bold]       - Copy data
+  [bold]R[/bold]       - Refresh        [bold]F1[/bold]          - About
+  [bold]Q[/bold]       - Quit           [bold]ESC[/bold]         - Close/Cancel
 
 [cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]
 
@@ -383,7 +544,8 @@ class OracleExplorerApp(App[None]):
         ("q", "quit", "Quit"),
         ("r", "refresh", "Refresh"),
         ("ctrl+s", "toggle_search", "Search"),
-        ("ctrl+p", "show_procedures", "Procedures"),
+        ("ctrl+p", "open_palette", "Palette"),
+        ("ctrl+shift+p", "show_procedures", "Procedures"),
         ("ctrl+k", "show_packages", "Packages"),
         ("ctrl+e", "toggle_sql_editor", "SQL"),
         ("ctrl+y", "copy_to_clipboard", "Copy"),
@@ -497,12 +659,55 @@ class OracleExplorerApp(App[None]):
         loop = asyncio.get_running_loop()
         self.conn = await loop.run_in_executor(None, db.create_connection, self.config)
 
+    def action_open_palette(self) -> None:
+        """Open command palette with quick actions."""
+
+        commands = [
+            ("change-schema", "Change Schema", "Switch the active schema"),
+        ]
+        self.push_screen(CommandPaletteScreen(commands))
+
+    async def perform_palette_command(self, command_id: str) -> None:
+        """Handle command palette selections."""
+
+        if command_id == "change-schema":
+            if not self.schemas:
+                await self._populate_schemas()
+            self.push_screen(SchemaSelectScreen(self.schemas, self.active_schema))
+
+    async def change_schema(self, schema: str) -> None:
+        """Change active schema from overlays."""
+
+        await self._set_active_schema(schema, notify=True)
+
     def action_refresh(self) -> None:
         # Cache'leri temizle ve yeniden yükle
         self.all_objects_cache = []
         self.detail_cache.clear()  # 🚀 Detail cache'i de temizle
         self.notify("Cache cleared, refreshing...", severity="information", timeout=2)
         asyncio.create_task(self._refresh_object_list())
+
+    async def _set_active_schema(self, schema: str, *, notify: bool = False) -> None:
+        """Update active schema and refresh object list."""
+
+        new_schema = db.normalize_identifier(schema)
+        if new_schema == self.active_schema:
+            return
+
+        self.active_schema = new_schema
+        self.config = replace(self.config, schema=new_schema)
+
+        select = self.query_one("#schema-select", Select)
+        if select.value != new_schema:
+            select.value = new_schema
+
+        self.all_objects_cache = []
+        self.detail_cache.clear()  # 🚀 Detail cache'i de temizle
+
+        if notify:
+            self.notify(f"Schema changed to {new_schema}", severity="information", timeout=2)
+
+        await self._refresh_object_list()
 
     async def _populate_schemas(self) -> None:
         assert self.conn is not None
@@ -752,14 +957,7 @@ class OracleExplorerApp(App[None]):
             return
         if event.value is None:
             return
-        new_schema = db.normalize_identifier(event.value)
-        if new_schema == self.active_schema:
-            return
-        self.active_schema = new_schema
-        # Şema değişti, cache'leri temizle
-        self.all_objects_cache = []
-        self.detail_cache.clear()  # 🚀 Detail cache'i de temizle
-        await self._refresh_object_list()
+        await self._set_active_schema(event.value)
 
     async def on_checkbox_changed(self, event: Checkbox.Changed) -> None:
         checkbox_id = event.checkbox.id or ""

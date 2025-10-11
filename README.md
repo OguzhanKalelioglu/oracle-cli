@@ -240,7 +240,8 @@ oracle-cli tui
 | **Tab** | Switch focus between panels |
 | **Ctrl+Y** | 📋 Copy selected object to clipboard (markdown format) |
 | **Ctrl+S** | Toggle search |
-| **Ctrl+P** | Show procedures only |
+| **Ctrl+P** | Open command palette |
+| **Ctrl+Shift+P** | Show procedures only |
 | **Ctrl+K** | Show packages only |
 | **Ctrl+E** | Open SQL editor |
 | **F1** | Show About/Help screen |
