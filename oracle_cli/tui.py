@@ -117,9 +117,8 @@ class CommandPaletteScreen(ModalScreen[None]):
         min-width: 40;
         max-height: 18;
         padding: 1 2;
-        border: solid $primary;
+        border: heavy $primary;
         background: $surface;
-        shadow: drop 1 2 4 #00000066;
     }
 
     CommandPaletteScreen #palette-list {
@@ -192,9 +191,8 @@ class SchemaSelectScreen(ModalScreen[None]):
         min-width: 40;
         max-height: 18;
         padding: 1 2;
-        border: solid $primary;
+        border: heavy $primary;
         background: $surface;
-        shadow: drop 1 2 4 #00000066;
     }
 
     SchemaSelectScreen #schema-list {
