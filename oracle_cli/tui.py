@@ -436,6 +436,7 @@ class OracleExplorerApp(App[None]):
     """Interactive Oracle schema explorer built with Textual."""
     
     TITLE = "Oracle-CLI"
+    ENABLE_COMMAND_PALETTE = False  # Disable Textual's default command palette
 
     CSS = """
     Screen {
