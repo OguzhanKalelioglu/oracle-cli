@@ -163,12 +163,13 @@ class CommandPaletteScreen(ModalScreen[None]):
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
         if isinstance(item, PaletteListItem):
-            await self.dismiss()
-            await self.app.perform_palette_command(item.command_id)
+            command_id = item.command_id
+            self.dismiss()
+            await self.app.perform_palette_command(command_id)
 
-    async def on_key(self, event) -> None:
+    def on_key(self, event) -> None:
         if event.key == "escape":
-            await self.dismiss()
+            self.dismiss()
 
 
 class SchemaListItem(ListItem):
@@ -247,12 +248,13 @@ class SchemaSelectScreen(ModalScreen[None]):
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
         if isinstance(item, SchemaListItem):
-            await self.dismiss()
-            await self.app.change_schema(item.schema)
+            schema = item.schema
+            self.dismiss()
+            await self.app.change_schema(schema)
 
-    async def on_key(self, event) -> None:
+    def on_key(self, event) -> None:
         if event.key == "escape":
-            await self.dismiss()
+            self.dismiss()
 
 
 class TableDetail(Widget):
@@ -667,6 +669,11 @@ class OracleExplorerApp(App[None]):
 
         commands = [
             ("change-schema", "Change Schema", "Switch the active schema"),
+            ("change-theme", "Change Theme", "Change the current theme"),
+            ("refresh", "Refresh", "Clear cache and refresh object list"),
+            ("sql-editor", "SQL Editor", "Open SQL editor"),
+            ("show-about", "Show About", "Show about/help screen"),
+            ("quit", "Quit", "Exit the application"),
         ]
         self.push_screen(CommandPaletteScreen(commands))
 
@@ -677,6 +684,16 @@ class OracleExplorerApp(App[None]):
             if not self.schemas:
                 await self._populate_schemas()
             self.push_screen(SchemaSelectScreen(self.schemas, self.active_schema))
+        elif command_id == "change-theme":
+            self.action_toggle_dark()
+        elif command_id == "refresh":
+            self.action_refresh()
+        elif command_id == "sql-editor":
+            self.action_toggle_sql_editor()
+        elif command_id == "show-about":
+            self.action_toggle_about()
+        elif command_id == "quit":
+            self.action_quit()
 
     async def change_schema(self, schema: str) -> None:
         """Change active schema from overlays."""
