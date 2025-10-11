@@ -659,13 +659,13 @@ class OracleExplorerApp(App[None]):
         loop = asyncio.get_running_loop()
         self.conn = await loop.run_in_executor(None, db.create_connection, self.config)
 
-    def action_open_palette(self) -> None:
+    async def action_open_palette(self) -> None:
         """Open command palette with quick actions."""
 
         commands = [
             ("change-schema", "Change Schema", "Switch the active schema"),
         ]
-        self.push_screen(CommandPaletteScreen(commands))
+        await self.push_screen(CommandPaletteScreen(commands))
 
     async def perform_palette_command(self, command_id: str) -> None:
         """Handle command palette selections."""
@@ -673,7 +673,7 @@ class OracleExplorerApp(App[None]):
         if command_id == "change-schema":
             if not self.schemas:
                 await self._populate_schemas()
-            self.push_screen(SchemaSelectScreen(self.schemas, self.active_schema))
+            await self.push_screen(SchemaSelectScreen(self.schemas, self.active_schema))
 
     async def change_schema(self, schema: str) -> None:
         """Change active schema from overlays."""
