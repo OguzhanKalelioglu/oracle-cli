@@ -154,9 +154,11 @@ class CommandPaletteScreen(ModalScreen[None]):
                     yield Static("No commands available.", classes="palette-empty")
 
     async def on_mount(self) -> None:
-        list_view = self.query_one("#palette-list", ListView, default=None)
-        if list_view is not None:
+        try:
+            list_view = self.query_one("#palette-list", ListView)
             list_view.focus()
+        except Exception:
+            pass
 
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
@@ -231,14 +233,16 @@ class SchemaSelectScreen(ModalScreen[None]):
                 yield Static("[dim]Enter: select • Esc: cancel[/dim]", classes="schema-help", markup=True)
 
     async def on_mount(self) -> None:
-        list_view = self.query_one("#schema-list", ListView, default=None)
-        if list_view is not None:
+        try:
+            list_view = self.query_one("#schema-list", ListView)
             if self.active_schema in self.schemas:
                 try:
                     list_view.index = self.schemas.index(self.active_schema)
                 except ValueError:
                     pass
             list_view.focus()
+        except Exception:
+            pass
 
     async def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
