@@ -411,7 +411,7 @@ class AboutScreen(Static):
 [bold white]Oracle-CLI TUI[/bold white]
 [dim]Interactive Oracle Database Explorer[/dim]
 
-[bold cyan]Version:[/bold cyan]     [yellow]1.1.0[/yellow] [dim](MCP Integration)[/dim]
+[bold cyan]Version:[/bold cyan]     [yellow]1.2.2[/yellow] [dim](Full-Featured Edition)[/dim]
 [bold cyan]Developer:[/bold cyan]   [yellow]Oğuzhan Kalelioğlu[/yellow]
 [bold cyan]GitHub:[/bold cyan]      [yellow]https://github.com/oguzhankalelioglu[/yellow]
 [bold cyan]License:[/bold cyan]     [yellow]MIT[/yellow]
@@ -420,17 +420,24 @@ class AboutScreen(Static):
 [cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]
 
 [dim]Keyboard Shortcuts:[/dim]
-  [bold]↑↓[/bold]      - Navigate       [bold]Ctrl+S[/bold]       - Search
+  [bold]↑↓[/bold]      - Navigate       [bold]Ctrl+S[/bold]       - Search (filter)
   [bold]Tab[/bold]     - Next focus     [bold]Ctrl+P[/bold]       - Command Palette
   [bold]Ctrl+Shift+P[/bold] - Procedures [bold]Ctrl+K[/bold]      - Packages
   [bold]Ctrl+E[/bold]  - SQL Editor     [bold]Ctrl+Y[/bold]       - Copy data
-  [bold]R[/bold]       - Refresh        [bold]F1[/bold]          - About
+  [bold]R[/bold]       - Refresh cache  [bold]F1[/bold]          - About
   [bold]Q[/bold]       - Quit           [bold]ESC[/bold]         - Close/Cancel
 
 [cyan]━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/cyan]
 
-[dim]✨ Press Ctrl+Y to copy table structure & data in markdown format[/dim]
-[dim]   Perfect for pasting into AI chat tools like ChatGPT, Claude, Cursor![/dim]
+[dim]✨ Features:[/dim]
+  [bold cyan]•[/bold cyan] MCP Server Integration for AI assistants
+  [bold cyan]•[/bold cyan] Multi-schema support with dropdown
+  [bold cyan]•[/bold cyan] SQL Editor with instant execution (Ctrl+E)
+  [bold cyan]•[/bold cyan] Theme toggle (light/dark) via Command Palette
+  [bold cyan]•[/bold cyan] Real-time search and filtering
+  [bold cyan]•[/bold cyan] Smart caching with 5-min TTL
+  [bold cyan]•[/bold cyan] Copy to clipboard in markdown format (Ctrl+Y)
+
 [dim]Press ESC to close this screen[/dim]
 """
         super().__init__(ascii_art, markup=True)

@@ -7,6 +7,10 @@
 
 **🚀 Interactive Oracle Database Explorer with AI-powered MCP Integration**
 
+<p align="center">
+  <img src="oracle-cli.gif" alt="Oracle-CLI Demo" width="100%">
+</p>
+
 <div align="center">
 
 [![Install with pipx](https://img.shields.io/badge/Install%20with-pipx-brightgreen?style=for-the-badge&logo=python)](https://github.com/oguzhankalelioglu/oracle-cli#install-with-pipx-recommended)
@@ -20,20 +24,22 @@
 
 ✨ **Interactive TUI** - Modern terminal interface with full keyboard navigation  
 🔍 **Schema Explorer** - Browse tables, packages, procedures, and functions  
+🔄 **Multi-Schema Support** - Easy switching between schemas with dropdown selector  
 📊 **Data Preview** - View table structures and sample data  
-💾 **SQL Editor** - Execute custom SQL queries  
+💾 **SQL Editor** - Execute custom SQL queries with **Ctrl+E** and instant results  
+🔎 **Smart Search** - Real-time filtering with **Ctrl+S** across all objects  
 ⚡ **Lightning Fast** - Intelligent caching & prefetching for instant navigation  
 🚀 **Smart Performance** - Background loading & 5-minute cache for large databases  
 📋 **Copy to Clipboard** - Export table structure & data in markdown format with **Ctrl+Y**  
 🤖 **AI-Ready** - Perfect for pasting into ChatGPT, Claude, Cursor, or any AI assistant  
 🎨 **Syntax Highlighting** - Color-coded PL/SQL source code viewer  
+🎨 **Theme Toggle** - Switch between light and dark themes via Command Palette (**Ctrl+P**)  
 ⌨️ **Keyboard First** - Navigate everything with arrow keys, no mouse needed  
 🔌 **No Client Required** - Uses `python-oracledb` thin mode by default  
 🔗 **MCP Server** - Integrates with AI tools (Cursor, VS Code, Claude) via Model Context Protocol  
 🔎 **Relationship Discovery** - Automatically find foreign key relationships between tables  
 📈 **Performance Analysis** - Index analysis and optimization recommendations  
 🔒 **Constraint Mapping** - Complete view of primary keys, foreign keys, unique constraints  
-🔍 **Smart Search** - Search tables and columns across entire schema  
 
 ---
 
@@ -239,13 +245,13 @@ oracle-cli tui
 | **↑/↓ Arrows** | Navigate through objects |
 | **Tab** | Switch focus between panels |
 | **Ctrl+Y** | 📋 Copy selected object to clipboard (markdown format) |
-| **Ctrl+S** | Toggle search |
-| **Ctrl+P** | Open command palette |
+| **Ctrl+S** | Toggle search (real-time filtering) |
+| **Ctrl+P** | Open command palette (schema, theme, etc.) |
 | **Ctrl+Shift+P** | Show procedures only |
 | **Ctrl+K** | Show packages only |
-| **Ctrl+E** | Open SQL editor |
+| **Ctrl+E** | Open SQL editor (execute queries) |
 | **F1** | Show About/Help screen |
-| **R** | Refresh object list |
+| **R** | Refresh & clear cache |
 | **ESC** | Close panels/Cancel |
 | **Q** | Quit application |
 
@@ -266,6 +272,15 @@ Example workflow:
 2. Navigate to a table using ↑/↓ arrows
 3. Press **Ctrl+Y** to copy
 4. Paste into ChatGPT/Claude/Cursor and ask: "Explain this table structure"
+
+#### ⚡ Command Palette
+
+Press **Ctrl+P** to open the command palette for quick actions:
+- **Change Schema**: Switch between database schemas
+- **Change Theme**: Toggle between light and dark themes
+- **SQL Editor**: Open SQL query editor
+- **Refresh**: Clear cache and reload objects
+- **About**: Show help and keyboard shortcuts
 
 ### Command Line Interface
 
@@ -479,15 +494,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Copy to clipboard (markdown format) ✅
 - [x] Full keyboard navigation ✅
 - [x] **MCP Server Integration** ✅
-- [x] **Table relationships viewer** ✅ **NEW in v1.2.0!**
-- [x] **Index and constraint viewer** ✅ **NEW in v1.2.0!**
-- [x] **Advanced schema analysis** ✅ **NEW in v1.2.0!**
+- [x] **Table relationships viewer** ✅ 
+- [x] **Index and constraint viewer** ✅ 
+- [x] **Advanced schema analysis**  ✅ 
+- [x] **SQL Editor with real-time execution** ✅
+- [x] **Multi-schema switching** ✅
+- [x] **Search and filtering** ✅
+- [x] **Theme toggle (light/dark)** ✅
+- [x] **Command Palette** ✅
 - [ ] Export data to CSV/JSON
 - [ ] Save and load SQL queries
+- [ ] Query history
 - [ ] Support for database diagrams
 - [ ] Multi-connection management
-- [ ] Query history
-- [ ] Custom themes
 - [ ] Plugin system
 - [ ] ER diagram visualization
 - [ ] Performance monitoring dashboard
