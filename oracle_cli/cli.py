@@ -180,12 +180,47 @@ def configure(ctx: click.Context, config_path: str):
     console = get_console(ctx)
     path = Path(config_path)
     existing = load_config(path)
+    
+    def prompt_masked(
+        label: str,
+        *,
+        existing_value: Optional[str] = None,
+        fallback_default: Optional[str] = None,
+        hide_input: bool = False,
+        allow_empty: bool = False,
+    ) -> str:
+        """Prompt for a value without echoing existing sensitive defaults."""
 
-    user = click.prompt(
-        "Oracle username",
-        default=(existing.user if existing else None),
-        show_default=existing is not None,
-    )
+        prompt_text = label
+        if existing_value:
+            prompt_text = f"{label} (leave empty to keep current)"
+            result = click.prompt(
+                prompt_text,
+                default="",
+                show_default=False,
+                hide_input=hide_input,
+            )
+            if result:
+                return result
+            return existing_value
+
+        result = click.prompt(
+            prompt_text,
+            default=fallback_default if fallback_default is not None else None,
+            show_default=fallback_default is not None,
+            hide_input=hide_input,
+        )
+
+        if not result:
+            if fallback_default is not None:
+                return fallback_default
+            if allow_empty:
+                return ""
+            raise click.ClickException(f"{label} cannot be empty.")
+
+        return result
+
+    user = prompt_masked("Oracle username", existing_value=(existing.user if existing else None))
 
     password_prompt = click.prompt(
         "Oracle password (leave empty to keep existing)",
@@ -200,16 +235,15 @@ def configure(ctx: click.Context, config_path: str):
     else:
         raise click.ClickException("Password cannot be empty.")
 
-    dsn = click.prompt(
+    dsn = prompt_masked(
         "Oracle DSN (e.g., localhost:1521/XEPDB1 or hostname:1521/ORCL)",
-        default=(existing.dsn if existing else None),
-        show_default=existing is not None,
+        existing_value=(existing.dsn if existing else None),
     )
 
-    schema = click.prompt(
+    schema = prompt_masked(
         "Default schema",
-        default=(existing.schema if existing else user),
-        show_default=True,
+        existing_value=(existing.schema if existing else None),
+        fallback_default=user,
     )
 
     try:

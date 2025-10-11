@@ -146,6 +146,8 @@ Ask your AI assistant:
 pipx install git+https://github.com/oguzhankalelioglu/oracle-cli.git
 ```
 
+> ℹ️ If the `oracle-cli` command is not found in a new terminal session, run `pipx ensurepath`, restart your terminal, and make sure `~/.local/bin` is on your `PATH`.
+
 ### Install with pip
 
 ```bash
