@@ -376,10 +376,25 @@ class CodeDetail(Static):
     can_focus = True
 
     def show_source(self, name: str, object_type: str, source: str) -> None:
-        language = "plsql"
+        # Use 'sql' lexer for PL/SQL syntax highlighting (plsql lexer doesn't exist in pygments)
+        language = "sql"
         title = f"-- {object_type} {name}"
         code = f"{title}\n\n{source.strip()}"
-        syntax = Syntax(code, language, theme="monokai", line_numbers=True)
+        
+        # Choose theme based on dark mode
+        # Dark mode themes: monokai, dracula, one-dark, nord, gruvbox-dark
+        # Light mode themes: github-dark (actually works well in light), default, friendly
+        theme = "monokai" if self.app.dark else "github-dark"
+        
+        syntax = Syntax(
+            code, 
+            language, 
+            theme=theme, 
+            line_numbers=True,
+            word_wrap=False,
+            code_width=None,
+            background_color="default"
+        )
         self.update(syntax)
 
     def on_key(self, event) -> None:
