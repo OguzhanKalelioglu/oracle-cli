@@ -14,7 +14,7 @@ from .config import CONFIG_PATH, load_config, save_config
 from .db import ConnectionConfig
 from .tui import OracleExplorerApp
 
-__version__ = "1.2.2"  # Auto-save config on first run + Windows MCP support
+__version__ = "1.2.3"  # Package body scroll support with arrow key navigation
 
 
 OBJECT_TYPE_ALIASES: Dict[str, str] = {

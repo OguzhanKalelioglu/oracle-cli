@@ -5,6 +5,23 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-01-XX
+
+### ✨ New Features
+- **Package Body Scroll Navigation**: Package body source code can now be scrolled with arrow keys
+  - Changed from `ScrollableContainer` to `VerticalScroll` for better scroll support
+  - Package body view is now focusable - automatically focuses when selected
+  - Arrow keys (↑/↓) scroll by 3 lines at a time
+  - Page Up/Down for larger scroll increments
+  - Home/End keys jump to top/bottom of code
+  - Mouse wheel scrolling also works
+  - After selecting a package body with Enter, arrow keys immediately work for navigation
+
+### 🐛 Bug Fixes
+- Fixed scroll functionality for long package body source code
+  - Previously couldn't scroll through package body content
+  - Now uses proper Textual `VerticalScroll` container for native scroll support
+
 ## [1.2.2] - 2025-10-09
 
 ### 🐛 Critical Bug Fix
