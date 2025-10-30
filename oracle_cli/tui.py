@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 from rich.syntax import Syntax
 from textual.app import App, ComposeResult
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, ScrollableContainer
 from textual.reactive import reactive
 from textual.screen import ModalScreen
 from textual.widget import Widget
@@ -494,6 +494,16 @@ class OracleExplorerApp(App[None]):
         padding: 1;
     }
 
+    #code-detail-container {
+        width: 1fr;
+        height: 1fr;
+        scrollbar-size: 1;
+    }
+
+    #code-detail {
+        width: 100%;
+    }
+
     #error-panel {
         padding: 2;
         background: $error-darken-1;
@@ -623,7 +633,8 @@ class OracleExplorerApp(App[None]):
                 yield LoadingIndicator(id="loading")
                 yield self.error_panel
                 yield TableDetail(id="table-detail")
-                yield CodeDetail(id="code-detail")
+                with ScrollableContainer(id="code-detail-container"):
+                    yield CodeDetail(id="code-detail")
         with Container(id="about-container"):
             yield AboutScreen()
         yield Footer()
@@ -850,7 +861,7 @@ class OracleExplorerApp(App[None]):
                     source = cached_content
                     code_detail = self.query_one("#code-detail", CodeDetail)
                     code_detail.show_source(entry.name, entry.object_type, source)
-                    switcher.current = "code-detail"
+                    switcher.current = "code-detail-container"
                 
                 # 🚀 Start prefetch for next items
                 self._start_prefetch(entry)
