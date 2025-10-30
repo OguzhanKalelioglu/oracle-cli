@@ -373,12 +373,40 @@ class TableDetail(Widget):
 class CodeDetail(Static):
     """Widget rendering PL/SQL source code."""
 
+    can_focus = True
+
     def show_source(self, name: str, object_type: str, source: str) -> None:
         language = "plsql"
         title = f"-- {object_type} {name}"
         code = f"{title}\n\n{source.strip()}"
         syntax = Syntax(code, language, theme="monokai", line_numbers=True)
         self.update(syntax)
+
+    def on_key(self, event) -> None:
+        """Handle arrow keys for scrolling in code view."""
+        # Get the scroll container (VerticalScroll parent)
+        scroll_container = self.parent
+        if scroll_container is None:
+            return
+
+        # Check if it's a VerticalScroll container
+        if hasattr(scroll_container, 'scroll_down'):
+            if event.key == "up":
+                scroll_container.scroll_up(3)
+            elif event.key == "down":
+                scroll_container.scroll_down(3)
+            elif event.key == "pageup":
+                scroll_container.scroll_page_up()
+            elif event.key == "pagedown":
+                scroll_container.scroll_page_down()
+            elif event.key == "home":
+                scroll_container.scroll_home()
+            elif event.key == "end":
+                scroll_container.scroll_end()
+            else:
+                return  # Don't prevent other keys
+        
+        event.prevent_default()
 
 
 class AboutScreen(Static):
@@ -497,7 +525,6 @@ class OracleExplorerApp(App[None]):
     #code-detail-container {
         width: 1fr;
         height: 1fr;
-        scrollbar-size: 1;
     }
 
     #code-detail {
@@ -633,7 +660,7 @@ class OracleExplorerApp(App[None]):
                 yield LoadingIndicator(id="loading")
                 yield self.error_panel
                 yield TableDetail(id="table-detail")
-                with ScrollableContainer(id="code-detail-container"):
+                with VerticalScroll(id="code-detail-container"):
                     yield CodeDetail(id="code-detail")
         with Container(id="about-container"):
             yield AboutScreen()
@@ -862,6 +889,8 @@ class OracleExplorerApp(App[None]):
                     code_detail = self.query_one("#code-detail", CodeDetail)
                     code_detail.show_source(entry.name, entry.object_type, source)
                     switcher.current = "code-detail-container"
+                    # Focus the code detail widget so arrow keys work for scrolling
+                    code_detail.focus()
                 
                 # 🚀 Start prefetch for next items
                 self._start_prefetch(entry)
@@ -909,7 +938,9 @@ class OracleExplorerApp(App[None]):
                 
                 code_detail = self.query_one("#code-detail", CodeDetail)
                 code_detail.show_source(entry.name, entry.object_type, source)
-                switcher.current = "code-detail"
+                switcher.current = "code-detail-container"
+                # Focus the code detail widget so arrow keys work for scrolling
+                code_detail.focus()
                 debug_log(f"✓ Source code displayed successfully", self.debug_mode)
             
             # 🚀 Start prefetch for next items
