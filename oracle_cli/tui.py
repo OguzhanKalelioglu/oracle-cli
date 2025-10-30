@@ -381,10 +381,14 @@ class CodeDetail(Static):
         title = f"-- {object_type} {name}"
         code = f"{title}\n\n{source.strip()}"
         
-        # Choose theme based on dark mode
-        # Dark mode themes: monokai, dracula, one-dark, nord, gruvbox-dark
-        # Light mode themes: github-dark (actually works well in light), default, friendly
-        theme = "monokai" if self.app.dark else "github-dark"
+        # Choose theme based on Textual's theme
+        # Check if app is using dark theme by checking theme name
+        try:
+            is_dark = "dark" in str(self.app.theme).lower()
+        except:
+            is_dark = True  # Default to dark theme
+        
+        theme = "monokai" if is_dark else "github-dark"
         
         syntax = Syntax(
             code, 
