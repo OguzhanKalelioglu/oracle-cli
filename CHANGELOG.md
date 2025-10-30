@@ -5,6 +5,16 @@ All notable changes to Oracle-CLI will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2025-01-XX
+
+### 🐛 Bug Fixes
+- **PL/SQL Syntax Highlighting Fixed**: Package body and PL/SQL code now displays with proper syntax highlighting
+  - Fixed: Changed from non-existent 'plsql' lexer to 'sql' lexer
+  - SQL keywords (SELECT, CREATE, BEGIN, END, etc.) now colored
+  - Strings, comments, and identifiers now properly highlighted
+  - Dynamic theme selection: monokai for dark mode, github-dark for light mode
+  - Improved code readability with proper color contrast
+
 ## [1.2.3] - 2025-01-XX
 
 ### ✨ New Features

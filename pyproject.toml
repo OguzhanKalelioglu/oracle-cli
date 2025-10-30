@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oracle-cli"
-version = "1.2.3"
+version = "1.2.4"
 description = "Interactive Terminal User Interface (TUI) for Oracle Database exploration with MCP support"
 readme = "README.md"
 requires-python = ">=3.10"
